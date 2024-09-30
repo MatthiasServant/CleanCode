@@ -2,9 +2,12 @@ import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { Order } from '../domain/entity/order.entity';
 import { CreateOrderDto } from '../domain/entity/order-dto.entity';
+import { CreateOrderService } from '../domain/use-case/create-order.service';
 
 @Controller('/orders')
 export default class OrderController {
+
+  constructor(private readonly createOrderService: CreateOrderService) {}
   @Get()
   async getOrders() {
     return 'All orders';
@@ -12,8 +15,6 @@ export default class OrderController {
 
   @Post()
   createOrder(@Res() res: Response, @Body() order: CreateOrderDto) {
-  return res.status(HttpStatus.CREATED).json({
-      result: 'OK'
-    })
+    return this.createOrderService.createOrder(order)
   }
 }

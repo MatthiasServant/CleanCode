@@ -15,8 +15,10 @@ export class CreateOrderDto {
   @ArrayMaxSize(5)
   orderItems: OrderItem[];
 
-  @Min(10)
   price: number;
+
+  @IsString()
+  invoiceAddress: string;
 
   @IsString()
   status: string;
