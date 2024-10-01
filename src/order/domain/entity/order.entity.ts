@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Expose } from 'class-transformer';
+import { OrderStatus } from '../enums/order-status.enum';
 
 @Entity()
 export class Order {
@@ -44,9 +45,41 @@ export class Order {
 
   @Column()
   @Expose({ groups: ['group_orders'] })
-  status: string;
+  status: OrderStatus;
 
   @Column({ nullable: true })
   @Expose({ groups: ['group_orders'] })
   paidAt: Date | null;
+
+  pay(): void {
+    if (this.status !== OrderStatus.PENDING) {
+      throw new Error('Order is not pending');
+    }
+    if (this.price > 500) {
+      throw new Error('Order price is too high');
+    }
+    this.status = OrderStatus.PAID;
+    this.paidAt = new Date();
+  }
+
+  deliver(): void {
+    this.status = OrderStatus.DELIVERED;
+  }
+
+  setShippingAddress(address: string): void {
+    this.shippingAddress = address;
+    this.shippingAddressSetAt = new Date();
+  }
+
+  setPending(): void {
+    this.status = OrderStatus.PENDING;
+  }
+
+  setPrice(price: number): void {
+    this.price = price;
+  }
+
+  getPrice(): number {
+    return this.price;
+  }
 }

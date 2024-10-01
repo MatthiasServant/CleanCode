@@ -13,7 +13,7 @@ export class PayOrderService {
     if(!order) {
       throw new Error('Order not found');
     }
-    order.status = 'PAID';
+    order.pay();
     return this.orderRepository.save(order);
-  }
+  }  
 }
