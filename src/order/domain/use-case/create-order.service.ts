@@ -9,8 +9,7 @@ export class CreateOrderService {
     private readonly orderRepository: OrderRepository;
 
   async createOrder(dto: CreateOrderDto): Promise<Order> {
-    const order = OrderMapper.dtoToOrder(dto);
-    order.calculatePrice();
+    const order = new Order(dto);
     return this.orderRepository.create(order);
   }
 }

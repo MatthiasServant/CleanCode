@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Expose } from 'class-transformer';
 import { OrderStatus } from '../enums/order-status.enum';
+import { CreateOrderDto } from './order-dto.entity';
 
 @Entity()
 export class Order {
@@ -56,6 +57,15 @@ export class Order {
   @Expose({ groups: ['group_orders'] })
   paidAt: Date | null;
 
+  constructor(createOrderDto: CreateOrderDto) {
+    this.customerName = createOrderDto.customerName;
+    this.orderItems = createOrderDto.orderItems;
+    this.invoiceAddress = createOrderDto.invoiceAddress;
+    this.shippingAddress = createOrderDto.shippingAddress;
+    this.status = OrderStatus.PENDING;
+    this.price = this.calculatePrice();
+  }
+
   pay(): void {
     if (this.status !== OrderStatus.PENDING) {
       throw new Error('Order is not pending');
@@ -83,10 +93,6 @@ export class Order {
     this.shippingAddressSetAt = new Date();
   }
 
-  setPending(): void {
-    this.status = OrderStatus.PENDING;
-  }
-
   setPrice(price: number): void {
     this.price = price;
   }
@@ -95,12 +101,11 @@ export class Order {
     return this.price;
   }
 
-  calculatePrice(): void {
+  calculatePrice(): number {
     const price = this.orderItems.reduce((acc, item) => acc + item.price, 0);
     if (price < Order.MIN_PRICE) {
       throw new Error('Order price is too high');
     }
-    this.setPending();
-    this.setPrice(price);
+    return price;
   }
 }

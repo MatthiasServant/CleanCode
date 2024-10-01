@@ -8,7 +8,6 @@ export class OrderMapper {
       price: dto.price,
       orderItems: dto.orderItems,
       shippingAddress: dto.shippingAddress,
-      status: dto.status,
       invoiceAddress: dto.invoiceAddress,
     };
   }
