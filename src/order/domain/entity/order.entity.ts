@@ -11,6 +11,11 @@ import { OrderStatus } from '../enums/order-status.enum';
 
 @Entity()
 export class Order {
+  static readonly MAX_PRICE = 500;
+  static readonly MIN_ITEMS = 3;
+  static readonly MIN_PRICE = 10;
+  static readonly SHIPPING_PRICE = 5;
+  
   @CreateDateColumn()
   @Expose({ groups: ['group_orders'] })
   createdAt: Date;
@@ -55,7 +60,7 @@ export class Order {
     if (this.status !== OrderStatus.PENDING) {
       throw new Error('Order is not pending');
     }
-    if (this.price > 500) {
+    if (this.price > Order.MAX_PRICE) {
       throw new Error('Order price is too high');
     }
     this.status = OrderStatus.PAID;
@@ -63,11 +68,18 @@ export class Order {
   }
 
   deliver(): void {
+    if (this.status !== OrderStatus.PAID) {
+      throw new Error('Order is not paid');
+    }
+    if (this.orderItems.length < Order.MIN_ITEMS) {
+      throw new Error('Order has less than 3 items');
+    }
     this.status = OrderStatus.DELIVERED;
   }
 
   setShippingAddress(address: string): void {
     this.shippingAddress = address;
+    this.price += Order.SHIPPING_PRICE;
     this.shippingAddressSetAt = new Date();
   }
 
@@ -85,7 +97,7 @@ export class Order {
 
   calculatePrice(): void {
     const price = this.orderItems.reduce((acc, item) => acc + item.price, 0);
-    if (price < 10) {
+    if (price < Order.MIN_PRICE) {
       throw new Error('Order price is too high');
     }
     this.setPending();
