@@ -57,6 +57,14 @@ export class Order {
   @Expose({ groups: ['group_orders'] })
   paidAt: Date | null;
 
+  @Column({ nullable: true })
+  @Expose({ groups: ['group_orders'] })
+  canceledAt: Date | null;
+
+  @Column({ nullable: true })
+  @Expose({ groups: ['group_orders'] })
+  cancelReason: string | null;
+
   constructor(createOrderDto: CreateOrderDto) {
     this.customerName = createOrderDto.customerName;
     this.orderItems = createOrderDto.orderItems;
@@ -107,5 +115,25 @@ export class Order {
       throw new Error('Order price is too high');
     }
     return price;
+  }
+
+  cancel(reason: string): void {
+    if (this.status !== OrderStatus.PENDING) {
+      throw new Error('Order is not pending');
+    }
+    this.cancelReason = reason;
+    this.status = OrderStatus.CANCELLED;
+    this.canceledAt = new Date();
+  }
+
+  setInvoiceAddress(address: string | null): void {
+    if(!this.shippingAddress) {
+      throw new Error('Shipping address is not set');
+    }
+    if(!address) {
+      this.invoiceAddress = this.shippingAddress;
+    } else {
+      this.invoiceAddress = address;
+    }
   }
 }
