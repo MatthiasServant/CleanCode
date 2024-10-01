@@ -9,12 +9,8 @@ export class CreateOrderService {
     private readonly orderRepository: OrderRepository;
 
   async createOrder(dto: CreateOrderDto): Promise<Order> {
-    const price = dto.orderItems.reduce((acc, item) => acc + item.price, 0);
     const order = OrderMapper.dtoToOrder(dto);
-    order.setPrice(price);
-    if(order.getPrice() < 10) { 
-      throw new Error('Price should be at least 10');
-    }
+    order.calculatePrice();
     return this.orderRepository.create(order);
   }
 }

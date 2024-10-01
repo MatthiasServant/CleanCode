@@ -82,4 +82,13 @@ export class Order {
   getPrice(): number {
     return this.price;
   }
+
+  calculatePrice(): void {
+    const price = this.orderItems.reduce((acc, item) => acc + item.price, 0);
+    if (price < 10) {
+      throw new Error('Order price is too high');
+    }
+    this.setPending();
+    this.setPrice(price);
+  }
 }
